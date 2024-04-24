@@ -30,7 +30,7 @@ public interface IChessPlayer
     /// <exception cref="System.InvalidOperationException">
     /// if a move is already being made
     /// </exception>
-    public void startMakingMove(Board board);
+    public void startMakingMove(in Board board);
 
     /// <returns>
     /// true iff a move has been made. 

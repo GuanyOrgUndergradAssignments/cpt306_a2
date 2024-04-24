@@ -43,7 +43,7 @@ public abstract class ConcreteChessPlayer : MonoBehaviour, IChessPlayer
     public bool isPlayer2() { return side == Board.BoardPositionState.PLAYER2; }
 
     /********************************** FROM IChessPlayer ************************************/
-    public void startMakingMove(Board board)
+    public void startMakingMove(in Board board)
     {
         if (!hasFinishedMakingMove())
         {
@@ -60,7 +60,7 @@ public abstract class ConcreteChessPlayer : MonoBehaviour, IChessPlayer
     /// <summary>
     /// Override this to implement the actual logic of start making a move.
     /// </summary>
-    protected abstract void internalStartMakingMove(Board board);
+    protected abstract void internalStartMakingMove(in Board board);
 
     public ChessMove getMove()
     {

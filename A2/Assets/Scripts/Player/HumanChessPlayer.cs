@@ -15,20 +15,24 @@ public class HumanChessPlayer : ConcreteChessPlayer
     {
     }
 
-    /********************************** METHODS ************************************/
+    /********************************** FROM ConcreteChessPlayer ************************************/
 
     public override bool hasFinishedMakingMove()
     {
         return !isMoving;
     }
 
-    protected override void internalStartMakingMove(Board board)
+    protected override void internalStartMakingMove(in Board board)
     {
+        Utility.MyDebugAssert(isMoving == false, "internalStartMakingMove() called when already moving.");
+
         isMoving = true;
 
-        // Start the move coroutine.
+        // the actual work is done in the coroutine per frame.
         this.StartCoroutine(humanMoveCoro(board));
     }
+
+    /********************************** HELPERS ************************************/
 
     /// <summary>
     /// Whenever this coroutine is resumed (per frame), 
