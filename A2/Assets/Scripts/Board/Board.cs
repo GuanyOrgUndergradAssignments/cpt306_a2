@@ -139,26 +139,15 @@ public class Board
     /// This method does not modify the current board.
     /// Could be called by an AI to evaluate possible outcomes.
     /// </summary>
-    /// <param name="src">source position of the move</param>
-    /// <param name="dst">destination position of the move</param>
-    /// <param name="player">
-    /// which player to make the move. 
-    /// Can only be either PLAYER1 or PLAYER2
-    /// </param>
+    /// <param name="move">the chess move</param>
     /// <returns>what the board would become if the move was made.</returns>
     /// 
-    /// <exception cref="System.ArgumentOutOfRangeException">
-    /// if any position is out of board
-    /// </exception>
     /// <exception cref="System.ArgumentException">
     /// 1. if the move is illegal or not possible.
-    /// 2. if player is not one of PLAYER1 and PLAYER2.
     /// </exception>
     public Board contemplateMove
     (
-        UnityEngine.Vector2Int src,
-        UnityEngine.Vector2Int dst,
-        BoardPositionState player
+        ChessMove move
     )
     {
         throw new System.NotImplementedException();
@@ -169,12 +158,6 @@ public class Board
     /// <summary>
     /// Make a move on the board.
     /// </summary>
-    /// <param name="src">source position of the move</param>
-    /// <param name="dst">destination position of the move</param>
-    /// <param name="player">
-    /// which player to make the move. 
-    /// Can only be either PLAYER1 or PLAYER2
-    /// </param>
     /// <returns>
     /// A list of all posistions where the opponent's pawns
     /// have been turned into the pawns of the player who made the move.
@@ -183,12 +166,8 @@ public class Board
     /// and which effects to play.
     /// </returns>
     /// 
-    /// <exception cref="System.ArgumentOutOfRangeException">
-    /// if any position is out of board
-    /// </exception>
     /// <exception cref="System.ArgumentException">
     /// 1. if the move is illegal or not possible.
-    /// 2. if player is not one of PLAYER1 and PLAYER2.
     /// </exception>
     public List<UnityEngine.Vector2Int> makeMove
     (
