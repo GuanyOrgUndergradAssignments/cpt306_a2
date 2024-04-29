@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 using System;
+using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 /// <summary>
 /// Contains all utility functions globally available.
@@ -12,13 +13,25 @@ public static class Utility
     /// https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-exitprocess
     /// </summary>
     [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    private static extern void ExitProcess(UInt32 uExitCode);
+    public static extern void ExitProcess(UInt32 uExitCode);
 
     /// <summary>
     /// https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-messagebox
     /// </summary>
     [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
-    private static extern void MessageBox(IntPtr hWnd, string text, string title, UInt32 uType);
+    public static extern int MessageBox(IntPtr hWnd, string text, string title, UInt32 uType);
+
+    /// <summary>
+    /// https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-terminatethread
+    /// </summary>
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern bool TerminateThread(IntPtr hThread, UInt32 dwExitCode);
+
+    /// <summary>
+    /// https://learn.microsoft.com/en-us/windows/win32/api/processthreadsapi/nf-processthreadsapi-getcurrentthread
+    /// </summary>
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+    public static extern IntPtr GetCurrentThread();
 
     /// <summary>
     /// Don't know who the fuck decided that Unity should catch and ignore all assertions and exceptions.

@@ -38,6 +38,11 @@ public interface IChessPlayer
     /// </returns>
     public bool hasFinishedMakingMove();
 
+    /// <summary>
+    /// Called when the game is restarted or goes back to the main ui.
+    /// </summary>
+    public void reset();
+
     /// <returns>
     /// The move most recently made.
     /// </returns>

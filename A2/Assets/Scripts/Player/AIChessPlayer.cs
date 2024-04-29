@@ -1,4 +1,5 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 
 /// <summary>
 /// Represents an AI chess player.
@@ -7,6 +8,8 @@ public class AIChessPlayer : ConcreteChessPlayer
 {
     /********************************** FIELDS ************************************/
     private Thread aiThread = null;
+    // Used to terminate the aiThread
+    private IntPtr aiThreadHandle = default(IntPtr);
     private Board chessBoardRef;
 
     // TODO: decided by Kemu Xu
@@ -26,6 +29,24 @@ public class AIChessPlayer : ConcreteChessPlayer
         return aiThread != null && !aiThread.IsAlive;
     }
 
+    /// <summary>
+    /// Kill the aiThread
+    /// </summary>
+    public override void reset()
+    {
+        if(aiThread != null && aiThread.IsAlive)
+        {
+            // Block until the thread has set its handle value.
+            while (aiThreadHandle == default(IntPtr)) { }
+
+            // Why deprecate Thread.Abort()?
+            Utility.TerminateThread(aiThreadHandle, 0);
+
+            aiThread = null;
+            aiThreadHandle = default(IntPtr);
+        }
+    }
+
     protected override void internalStartMakingMove(in Board board)
     {
         chessBoardRef = board;
@@ -38,6 +59,7 @@ public class AIChessPlayer : ConcreteChessPlayer
     /********************************** HELPERS ************************************/
     private void threadTask()
     {
+        aiThreadHandle = Utility.GetCurrentThread();
         this.move = aiTask();
     }
 

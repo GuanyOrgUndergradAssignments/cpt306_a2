@@ -77,4 +77,5 @@ public abstract class ConcreteChessPlayer : MonoBehaviour, IChessPlayer
         return move;
     }
 
+    public abstract void reset();
 }

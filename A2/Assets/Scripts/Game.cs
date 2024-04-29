@@ -87,7 +87,31 @@ public sealed class Game : MonoBehaviour
 
         uiMgr.inGameMenu.SetActive(true);
     }
-    
+
+    /// <summary>
+    /// called when the player wants to pause the game during gameplay
+    /// </summary>
+    public void pauseGame()
+    {
+        // stateMgr asserts the state already.
+
+        Time.timeScale = 0.0f;
+        stateMgr.pause();
+        uiMgr.pauseMenu.SetActive(true);
+    }
+
+    /// <summary>
+    /// called when the player resumes a paused game
+    /// </summary>
+    public void resumeGame()
+    {
+        // stateMgr asserts the state already.
+
+        Time.timeScale = 1.0f;
+        stateMgr.resume();
+        uiMgr.hideAllExceptInGameUI();
+    }
+
     /// <summary>
     /// Called inside Update()
     /// </summary>
@@ -95,6 +119,54 @@ public sealed class Game : MonoBehaviour
     {
         stateMgr.switchTurn();
         nextPlayer.startMakingMove(board);
+    }
+
+    /// <summary>
+    /// Called whenever the user wants to go back to main menu.
+    /// </summary>
+    public void goHome()
+    {
+        // stateMgr asserts the state already.
+
+        // reset the players.
+        player1.reset();
+        player2.reset();
+
+        // in case it was paused
+        Time.timeScale = 1.0f;
+
+        // destroy all pawns
+        modelMgr.clear();
+        // UI
+        uiMgr.hideAllUI();
+
+        // state change
+        stateMgr.goHome();
+
+        // brings up the main ui
+        uiMgr.mainMenu.SetActive(true);
+    }
+
+    /// <summary>
+    /// Exits the game.
+    /// </summary>
+    public void exit()
+    {
+        // can only exit from the main ui.
+        Utility.MyDebugAssert(stateMgr.getState() == StateManager.State.MAIN_UI);
+
+        // destroy all game objects
+        // including self
+        {
+            // menus are destroyed by the Manager's OnDestroy()
+            GameObject.Destroy(uiMgr.gameObject);
+            // board and pawns are destroyed by the Manager's OnDestroy()
+            GameObject.Destroy(modelMgr.gameObject);
+            GameObject.Destroy(this.gameObject);
+        }
+
+        // exit the game.
+        Application.Quit(0);
     }
 
     /*********************************** MONO ***********************************/

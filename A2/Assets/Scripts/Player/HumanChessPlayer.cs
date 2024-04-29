@@ -8,6 +8,7 @@ public class HumanChessPlayer : ConcreteChessPlayer
 {
     /********************************** FIELDS ************************************/
     private bool isMoving = false;
+    private Coroutine moveCoro = null;
 
     /********************************** CTOR ************************************/
 
@@ -22,6 +23,21 @@ public class HumanChessPlayer : ConcreteChessPlayer
         return !isMoving;
     }
 
+    /// <summary>
+    /// Cancel the move
+    /// </summary>
+    public override void reset()
+    {
+        isMoving = false;
+
+        // stop the move coroutine.
+        if(moveCoro != null)
+        {
+            this.StopCoroutine(moveCoro);
+            moveCoro = null;
+        }
+    }
+
     protected override void internalStartMakingMove(in Board board)
     {
         Utility.MyDebugAssert(isMoving == false, "internalStartMakingMove() called when already moving.");
@@ -29,7 +45,7 @@ public class HumanChessPlayer : ConcreteChessPlayer
         isMoving = true;
 
         // the actual work is done in the coroutine per frame.
-        this.StartCoroutine(humanMoveCoro(board));
+        moveCoro = this.StartCoroutine(humanMoveCoro(board));
     }
 
     /********************************** HELPERS ************************************/
