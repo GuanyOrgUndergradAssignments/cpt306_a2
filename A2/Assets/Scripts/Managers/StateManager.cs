@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Net.NetworkInformation;
 
 /// <summary>
 /// The state manager manages the state of the game.
@@ -20,31 +21,27 @@ public class StateManager
         MAIN_UI,
         // when the game is paused
         PAUSED,
-        // when the game is running
-        RUNNING,
-        // when the player has won
-        VICTORY,
-        // when the player has lost
+        // when player1 is taking the turn
+        PLAYER1,
+        // when player2 is taking the turn
+        PLAYER2,
+        // when the game is over.
+        // P1 may win, P2 may win, or they may have a draw.
         GAME_OVER
     }
 
-    /// <summary>
-    /// Difficulty of the game.
-    /// </summary>
-    public enum Difficulty
+    /*********************************** CTOR ***********************************/
+    public StateManager()
     {
-        EASY = 0,
-        NORMAL = 1,
-        HARD = 2,
-        NUMBER_DIFFICULTIES = 3
+        state = State.MAIN_UI;
+        score = 0;
     }
 
     /*********************************** FIELDS ***********************************/
 
     private State state;
+    private State whichPlayerBeforePaused = State.PLAYER1;
     private int score;
-    // Set only in options UI. The state mananger doesn't set it.
-    public Difficulty difficulty;
 
     public const String SCORE_FILE_PATH = "game_scores.txt";
     // score...datetime
@@ -85,65 +82,74 @@ public class StateManager
     // states are abbreviated in the following comments.
 
     /// <summary>
-    /// From MU to R
+    /// From MU to P1
     /// </summary>
     public void startGame()
     {
         Utility.MyDebugAssert(state == State.MAIN_UI);
 
         score = 0;
-        state = State.RUNNING;
+        state = State.PLAYER1;
     }
 
     /// <summary>
-    /// From R to P
+    /// P1 to P2, or P2 to P1
+    /// </summary>
+    public void switchTurn()
+    {
+        if(state == State.PLAYER1)
+        {
+            state = State.PLAYER2;
+        }
+        else if(state == State.PLAYER2)
+        {
+            state = State.PLAYER1;
+        }
+        else
+        {
+            Utility.MyDebugAssert(false, "Bad state.");
+        }
+    }
+
+    /// <summary>
+    /// From P1,P2 to P
     /// </summary>
     public void pause()
     {
-        Utility.MyDebugAssert(state == State.RUNNING);
+        Utility.MyDebugAssert(state == State.PLAYER1 || state == State.PLAYER2);
+        whichPlayerBeforePaused = state;
         state = State.PAUSED;
+
     }
 
     /// <summary>
-    /// From P to R
+    /// From P to P1,P2
     /// </summary>
     public void resume()
     {
         Utility.MyDebugAssert(state == State.PAUSED);
-        state = State.RUNNING;
+        Utility.MyDebugAssert(whichPlayerBeforePaused == State.PLAYER1 || whichPlayerBeforePaused == State.PLAYER2);
+        state = whichPlayerBeforePaused;
     }
 
     /// <summary>
-    /// From P, V, GO to MU
+    /// From P, GO to MU
     /// </summary>
     public void goHome()
     {
         // can be called when
-        // V, P, N, GO
-        Utility.MyDebugAssert(state != State.MAIN_UI && state != State.RUNNING);
+        // GO, P
+        Utility.MyDebugAssert(state == State.GAME_OVER || state == State.PAUSED);
 
         state = State.MAIN_UI;
     }
 
     /// <summary>
-    /// From R to V.
-    /// Saves the score to the local file.
-    /// </summary>
-    public void win()
-    {
-        Utility.MyDebugAssert(state == State.RUNNING);
-        state = State.VICTORY;
-
-        // save score to file.
-        saveScoresToFile();
-    }
-
-    /// <summary>
-    /// From R to GO
+    /// From P1,P2 to GO
     /// </summary>
     public void gameOver()
     {
-        Utility.MyDebugAssert(state == State.RUNNING);
+        Utility.MyDebugAssert(state == State.PLAYER1 || state == State.PLAYER2);
         state = State.GAME_OVER;
     }
 

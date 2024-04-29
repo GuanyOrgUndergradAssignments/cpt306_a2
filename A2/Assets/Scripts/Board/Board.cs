@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 /// <summary>
 /// A Board stores the state of the board and the pawns
@@ -79,7 +80,11 @@ public class Board
     /// <exception cref="System.ArgumentException">
     /// if the two positions are the same.
     /// </exception>
-    public Board(UnityEngine.Vector2Int player1StartPos, UnityEngine.Vector2Int player2StartPos)
+    public Board
+    (
+        UnityEngine.Vector2Int player1StartPos, 
+        UnityEngine.Vector2Int player2StartPos
+    )
     {
         throw new System.NotImplementedException();
     }
@@ -171,9 +176,7 @@ public class Board
     /// </exception>
     public List<UnityEngine.Vector2Int> makeMove
     (
-        UnityEngine.Vector2Int src,
-        UnityEngine.Vector2Int dst,
-        BoardPositionState player
+        ChessMove move
     )
     {
         throw new System.NotImplementedException();
