@@ -69,6 +69,17 @@ public class ModelsManager: MonoBehaviour
         throw new System.NotImplementedException();
     }
 
+    /// <returns>
+    /// NOT USED FOR NOW.
+    /// (x,z), where 
+    /// x is the size of the board along the x axis,
+    /// z is the size of the board along the z axis
+    /// </returns>
+    //public Vector2 getBoardSize2D()
+    //{
+    //    throw new System.NotImplementedException();
+    //}
+
     /*********************************** MUTATORS ***********************************/
 
     /// <summary>

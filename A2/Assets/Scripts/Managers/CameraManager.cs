@@ -16,6 +16,7 @@ using UnityEngine;
 /// |      \
 /// |       \
 ///          Focal
+///          
 /// Tactical mode (orthogonal):
 ///         Cam
 ///     /   |   \
@@ -33,12 +34,17 @@ public class CameraManager : MonoBehaviour
 
     // Note: in Unity: x is right, y is up, and z is forward.
 
-    public static readonly float cameraDistancePersp = 100.0f;
-    public static readonly float cameraDistanceOrtho = 100.0f;
+    public const float cameraDistancePersp = 100.0f;
+    public const float cameraDistanceOrtho = 100.0f;
+    public const float zoomFactor = 2.0f;
 
     public static readonly Vector3 lookatVectorPersp = cameraDistancePersp * 
         (Vector3.down + .5f * Vector3.forward).normalized;
     public static readonly Vector3 lookatVectorOrtho = cameraDistanceOrtho * 
+        Vector3.down;
+    public static readonly Vector3 zoomedLookatVectorPersp = cameraDistancePersp / zoomFactor *
+    (Vector3.down + .5f * Vector3.forward).normalized;
+    public static readonly Vector3 zoomedLookatVectorOrtho = cameraDistanceOrtho / zoomFactor *
         Vector3.down;
 
     /*********************************** FIELDS ***********************************/
@@ -48,6 +54,9 @@ public class CameraManager : MonoBehaviour
 
     // Its focalPoint on the board
     Vector3 focalPoint;
+
+    // true iff the camera is zoomed in.
+    bool zoom = false;
 
     /*********************************** METHODS ***********************************/  
 
@@ -95,24 +104,47 @@ public class CameraManager : MonoBehaviour
         updateCameraTrans();
     }
 
+    /// <summary>
+    /// zoom the camera from 1.0f to zoomFactor.
+    /// Has no effect if the camera is already zoomed in.
+    /// </summary>
+    public void zoomIn()
+    {
+        zoom = true;
+        updateCameraTrans();
+    }
+
+    /// <summary>
+    /// zoom the camera to 1.0f
+    /// Has no effect if the camera is already zoomed out.
+    /// </summary>
+    public void zoomOut()
+    {
+        zoom = false;
+        updateCameraTrans();
+    }
+
     /*********************************** PRIVATE HELPERS ***********************************/
 
     /// <summary>
     /// Called after a
     ///     1. mode change, or
     ///     2. a focal point change
+    ///     3. a zoom change
     /// </summary>
     private void updateCameraTrans()
     {
         if (getMode())
         // perspective
         {
-            cam.transform.position = focalPoint - lookatVectorPersp;
+            cam.transform.position = focalPoint - 
+                (zoom ? zoomedLookatVectorPersp : lookatVectorPersp);
         }
         else
         // orthogonal
         {
-            cam.transform.position = focalPoint - lookatVectorPersp;
+            cam.transform.position = focalPoint -
+                (zoom ? zoomedLookatVectorOrtho : lookatVectorOrtho);
         }
         cam.transform.LookAt(focalPoint);
     }
