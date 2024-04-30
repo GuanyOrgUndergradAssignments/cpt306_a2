@@ -50,7 +50,7 @@ public static class Utility
                 "Debug Assertion Failed!", 
                 0x00000000 | 0x00000010 // MB_OK | MB_ICONERROR
             );
-            //ExitProcess(1);
+            ExitProcess(1);
         }
     }
 }

@@ -53,7 +53,24 @@ public class ModelsManager: MonoBehaviour
         throw new System.NotImplementedException();
     }
 
-    /*********************************** METHODS ***********************************/
+    /*********************************** OBSERVERS ***********************************/
+
+    // These returns properties (e.g. dimensions, position, rotation)
+    // of the models
+
+    // Most will be used by the Camera manager.
+
+    /// <returns>
+    /// The position of the center of the top surface plane of the board.
+    /// The value should not change at all.
+    /// </returns>
+    public Vector3 getBoardSurfaceCenter()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    /*********************************** MUTATORS ***********************************/
+
     /// <summary>
     /// Spawn the board and the two initial pawns.
     /// </summary>

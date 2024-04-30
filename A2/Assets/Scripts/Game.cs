@@ -27,10 +27,12 @@ public sealed class Game : MonoBehaviour
 
     // created inside
     public readonly StateManager stateMgr;
-    // assigned in editor
+    // assigned in the editor as a prefab
     public ModelsManager modelMgr;
-    // assigned in editor
+    // assigned in the editor as a prefab
     public UIManager uiMgr;
+    // assigned in the editor as a prefab
+    public CameraManager camMgr;
 
     // created inside
     public readonly Board board;
@@ -178,8 +180,10 @@ public sealed class Game : MonoBehaviour
     {
         uiMgr = GameObject.Instantiate(uiMgr);
         modelMgr = GameObject.Instantiate(modelMgr);
+        camMgr = GameObject.Instantiate(camMgr);
         Utility.MyDebugAssert(uiMgr != null, "check prefabs in editor.");
         Utility.MyDebugAssert(modelMgr != null, "check prefabs in editor.");
+        Utility.MyDebugAssert(camMgr != null, "check prefabs in editor.");
     }
 
     /// <summary>
