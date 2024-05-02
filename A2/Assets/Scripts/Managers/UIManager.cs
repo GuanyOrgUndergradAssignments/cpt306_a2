@@ -227,7 +227,7 @@ public class UIManager : MonoBehaviour
                 updateOptionsMenu();
             });
         }
-//#else
+#else
         // main menu buttons
         {
             var btns = mainMenu.GetComponentsInChildren<Button>();
