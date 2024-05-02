@@ -55,7 +55,7 @@ public sealed class Game : MonoBehaviour
 
     // start pawn positions
     public readonly Vector2Int player1Start = Vector2Int.zero;
-    public readonly Vector2Int player2Start = (int)Board.BOARD_LENGTH * Vector2Int.one;
+    public readonly Vector2Int player2Start = (int)(Board.BOARD_LENGTH - 1) * Vector2Int.one;
 
     /*********************************** CTOR ***********************************/
     public Game()
@@ -251,7 +251,9 @@ public sealed class Game : MonoBehaviour
             modelMgr.onMoveMade(move, changedPawns, move.getPlayer());
 
             // check if the game is over after the move
-            if(board.getBoardState() == Board.BoardState.PLAYER1_WON || board.getBoardState() == Board.BoardState.PLAYER2_WON)
+            if(board.getBoardState() == Board.BoardState.PLAYER1_WON || 
+                board.getBoardState() == Board.BoardState.PLAYER2_WON || 
+                board.getBoardState() == Board.BoardState.DRAW)
             {
                 stateMgr.gameOver();
                 uiMgr.gameOverMenu.SetActive(true);
