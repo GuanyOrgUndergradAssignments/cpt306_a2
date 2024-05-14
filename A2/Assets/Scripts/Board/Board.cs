@@ -154,7 +154,7 @@ public class Board
     /// </exception>
     public Board
     (
-        UnityEngine.Vector2Int player1StartPos, 
+        UnityEngine.Vector2Int player1StartPos,
         UnityEngine.Vector2Int player2StartPos
     )
     {
