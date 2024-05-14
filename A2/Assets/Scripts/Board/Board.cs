@@ -385,7 +385,7 @@ public class Board
 
         // TODO: Defined By Zhen Ma (I have only initialised the board cuz I need it. Other functions have not implemented)
 
-        throw new System.NotImplementedException();
+        // throw new System.NotImplementedException();
     }
 
     /// <summary>
@@ -394,7 +394,19 @@ public class Board
     /// <param name="other"></param>
     public Board(Board other)
     {
-        throw new System.NotImplementedException();
+        // throw new System.NotImplementedException();
+
+        // Initialize the board state to match the dimensions of the other board
+        board = new BoardPositionState[BOARD_LENGTH, BOARD_LENGTH];
+
+        // Copy the state from the other board
+        for (int i = 0; i < BOARD_LENGTH; i++)
+        {
+            for (int j = 0; j < BOARD_LENGTH; j++)
+            {
+                board[i, j] = other.getBoardPosState(new Vector2Int(i, j));
+            }
+        }
     }
 
     /********************************** OBSERVERS ************************************/
@@ -449,7 +461,14 @@ public class Board
     /// </exception>
     public BoardPositionState getBoardPosState(UnityEngine.Vector2Int position)
     {
-        throw new System.NotImplementedException();
+        // throw new System.NotImplementedException();
+
+        // Check if the position is within the board range
+        if (!isPosInBoard(position))
+            throw new ArgumentOutOfRangeException("Position is out of board.");
+
+        // Return the state of the specified position
+        return board[position.x, position.y];
     }
 
     /// <summary>
@@ -468,7 +487,34 @@ public class Board
     /// </returns>
     public UnityEngine.Vector3Int getBoardStatistics()
     {
-        throw new System.NotImplementedException();
+        // throw new System.NotImplementedException();
+
+        int emptyCount = 0;
+        int player1Count = 0;
+        int player2Count = 0;
+
+        // Iterate through the board to count empty positions and players' pawns
+        for (int i = 0; i < BOARD_LENGTH; i++)
+        {
+            for (int j = 0; j < BOARD_LENGTH; j++)
+            {
+                switch (board[i, j])
+                {
+                    case BoardPositionState.EMPTY:
+                        emptyCount++;
+                        break;
+                    case BoardPositionState.PLAYER1:
+                        player1Count++;
+                        break;
+                    case BoardPositionState.PLAYER2:
+                        player2Count++;
+                        break;
+                }
+            }
+        }
+
+        // Return the board statistics as a Vector3Int object
+        return new UnityEngine.Vector3Int(emptyCount, player1Count, player2Count);
     }
 
     /// <summary>
@@ -487,7 +533,16 @@ public class Board
         ChessMove move
     )
     {
-        throw new System.NotImplementedException();
+        // throw new System.NotImplementedException();
+        
+        // Create a copy of the current board
+        Board newBoard = new Board(this);
+
+        // Make the move on the new board
+        newBoard.makeMove(move);
+
+        // Return the new board
+        return newBoard;
     }
 
     /// <summary>
@@ -666,7 +721,27 @@ public class Board
     /// </exception>
     public void reset(UnityEngine.Vector2Int player1StartPos, UnityEngine.Vector2Int player2StartPos)
     {
-        throw new System.NotImplementedException();
+        // Check if the start positions are within the board range
+        if (!isPosInBoard(player1StartPos) || !isPosInBoard(player2StartPos))
+            throw new ArgumentOutOfRangeException("Start positions must be within the board range.");
+
+        // Check if the start positions are the same
+        if (player1StartPos == player2StartPos)
+            throw new ArgumentException("Player 1 and Player 2 cannot start at the same position.");
+
+        // Clear the board and set the start positions
+        for (int i = 0; i < BOARD_LENGTH; i++)
+        {
+            for (int j = 0; j < BOARD_LENGTH; j++)
+            {
+                board[i, j] = BoardPositionState.EMPTY;
+            }
+        }
+
+        // Set the start positions for Player 1 and Player 2
+        board[player1StartPos.x, player1StartPos.y] = BoardPositionState.PLAYER1;
+        board[player2StartPos.x, player2StartPos.y] = BoardPositionState.PLAYER2;
+
     }
 
 }

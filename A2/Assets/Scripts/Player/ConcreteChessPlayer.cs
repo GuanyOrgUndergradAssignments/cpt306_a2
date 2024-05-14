@@ -27,13 +27,13 @@ public abstract class ConcreteChessPlayer : MonoBehaviour, IChessPlayer
     /// <exception cref="System.ArgumentException">if side is not PLAYER1 or PLAYER2</exception>
     public ConcreteChessPlayer(Board.BoardPositionState side)
     {
-        if (side != Board.BoardPositionState.PLAYER1 || side != Board.BoardPositionState.PLAYER2)
+        if (side != Board.BoardPositionState.PLAYER1 && side != Board.BoardPositionState.PLAYER2)
         {
             throw new System.ArgumentException("side value is not correct.");
         }
 
         this.side = side;
-    }
+        }
 
     /********************************** OBSERVERS ************************************/
 

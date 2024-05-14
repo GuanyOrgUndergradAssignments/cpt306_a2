@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using UnityEngine;
 using static StateManager;
 
@@ -84,10 +85,12 @@ public sealed class Game : MonoBehaviour
     /// </summary>
     public void startGame()
     {
+        Debug.Log("Game started.");
+
         stateMgr.startGame();
         modelMgr.onGameStart(player1Start, player2Start);
 
-        uiMgr.inGameMenu.SetActive(true);
+        // uiMgr.inGameMenu.SetActive(true);
     }
 
     /// <summary>
@@ -178,12 +181,13 @@ public sealed class Game : MonoBehaviour
     /// </summary>
     public void Awake()
     {
-        uiMgr = GameObject.Instantiate(uiMgr);
+        // uiMgr = GameObject.Instantiate(uiMgr);
         modelMgr = GameObject.Instantiate(modelMgr);
-        camMgr = GameObject.Instantiate(camMgr);
-        Utility.MyDebugAssert(uiMgr != null, "check prefabs in editor.");
+        // camMgr = GameObject.Instantiate(camMgr);
+        // Utility.MyDebugAssert(uiMgr != null, "check prefabs in editor.");
         Utility.MyDebugAssert(modelMgr != null, "check prefabs in editor.");
-        Utility.MyDebugAssert(camMgr != null, "check prefabs in editor.");
+        // Utility.MyDebugAssert(camMgr != null, "check prefabs in editor.");
+        startGame();
     }
 
     /// <summary>
@@ -192,17 +196,17 @@ public sealed class Game : MonoBehaviour
     public void Start()
     {
         // bg music
-        {
-            bgMusic = gameObject.GetComponent<AudioSource>();
-            Utility.MyDebugAssert(bgMusic != null, "Should assign music.");
+        // {
+        //     bgMusic = gameObject.GetComponent<AudioSource>();
+        //     Utility.MyDebugAssert(bgMusic != null, "Should assign music.");
 
-            // starts playing the bg music
-            bgMusic.volume = AudioManager.musicStrength();
-            bgMusic.Play();
-        }
+        //     // starts playing the bg music
+        //     bgMusic.volume = AudioManager.musicStrength();
+        //     bgMusic.Play();
+        // }
 
         // main UI
-        uiMgr.mainMenu.SetActive(true);
+        // uiMgr.mainMenu.SetActive(true);
     }
 
     /// <summary>
