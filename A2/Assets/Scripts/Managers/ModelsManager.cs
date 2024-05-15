@@ -217,7 +217,7 @@ public class ModelsManager: MonoBehaviour
 
     private Vector3 BoardPositionToWorld(Vector2Int boardPosition)
     {
-        float cellSize = 0.17f;
+        float cellSize = 0.18f;
         float boardHeight = 0.11f;
 
         float x = (boardPosition.x - 3.5f) * cellSize;
