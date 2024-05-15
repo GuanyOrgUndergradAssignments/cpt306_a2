@@ -41,6 +41,10 @@ public sealed class Game : MonoBehaviour
     // players
     IChessPlayer player1;
     IChessPlayer player2;
+    // Because it needs to use some Unity functions,
+    // a player is a mono script. Therefore, they have to be created via prefabs.
+    public GameObject player1Prefab;
+    public GameObject player2Prefab;
 
     // background music.
     // attached as a component to this instance.
@@ -61,19 +65,11 @@ public sealed class Game : MonoBehaviour
     /*********************************** CTOR ***********************************/
     public Game()
     {
-        // can only have one instance per game
-        Utility.MyDebugAssert(gameSingleton == null);
-        gameSingleton = this;
-
         // Create the managers that don't need prefabs
         stateMgr = new StateManager();
 
         // Create the board
         board = new Board(player1Start, player2Start);
-
-        // players
-        player1 = new HumanChessPlayer(Board.BoardPositionState.PLAYER1);
-        player2 = new AIChessPlayer(Board.BoardPositionState.PLAYER2, (uint)difficulty);
 
         // all that can't be inited here are inited in Awake().
     }
@@ -87,10 +83,18 @@ public sealed class Game : MonoBehaviour
     {
         Debug.Log("Game started.");
 
+        // state
         stateMgr.startGame();
-        modelMgr.onGameStart(player1Start, player2Start);
 
-        // uiMgr.inGameMenu.SetActive(true);
+        // models
+        modelMgr.onGameStart(player1Start, player2Start);
+        
+        // UI
+        uiMgr.mainMenu.SetActive(false);
+        uiMgr.inGameMenu.SetActive(true);
+
+        // the first move
+        player1.startMakingMove(board);
     }
 
     /// <summary>
@@ -167,11 +171,21 @@ public sealed class Game : MonoBehaviour
             GameObject.Destroy(uiMgr.gameObject);
             // board and pawns are destroyed by the Manager's OnDestroy()
             GameObject.Destroy(modelMgr.gameObject);
+            GameObject.Destroy(camMgr.gameObject);
             GameObject.Destroy(this.gameObject);
         }
 
         // exit the game.
         Application.Quit(0);
+    }
+
+    /// <summary>
+    /// Called by myself in Update()
+    /// </summary>
+    private void onGameOver()
+    {
+        stateMgr.gameOver();
+        uiMgr.onGameOver(board.getBoardState());
     }
 
     /*********************************** MONO ***********************************/
@@ -181,13 +195,26 @@ public sealed class Game : MonoBehaviour
     /// </summary>
     public void Awake()
     {
-        // uiMgr = GameObject.Instantiate(uiMgr);
+        // can only have one instance per game
+        Utility.MyDebugAssert(gameSingleton == null);
+        gameSingleton = this;
+
+        uiMgr = GameObject.Instantiate(uiMgr);
         modelMgr = GameObject.Instantiate(modelMgr);
-        // camMgr = GameObject.Instantiate(camMgr);
-        // Utility.MyDebugAssert(uiMgr != null, "check prefabs in editor.");
+        camMgr = GameObject.Instantiate(camMgr);
+        Utility.MyDebugAssert(uiMgr != null, "check prefabs in editor.");
         Utility.MyDebugAssert(modelMgr != null, "check prefabs in editor.");
-        // Utility.MyDebugAssert(camMgr != null, "check prefabs in editor.");
-        startGame();
+        Utility.MyDebugAssert(camMgr != null, "check prefabs in editor.");
+
+        // players
+        Utility.MyDebugAssert(player1Prefab != null, "check prefabs in editor.");
+        Utility.MyDebugAssert(player2Prefab != null, "check prefabs in editor.");
+        var p1Obj = GameObject.Instantiate(player1Prefab);
+        var p2Obj = GameObject.Instantiate(player2Prefab);
+        player1 = p1Obj.GetComponent<HumanChessPlayer>() as IChessPlayer;
+        player2 = p2Obj.GetComponent<AIChessPlayer>() as IChessPlayer;
+        Utility.MyDebugAssert(player1 != null, "Did I forget to attach scripts?");
+        Utility.MyDebugAssert(player2 != null, "Did I forget to attach scripts?");
     }
 
     /// <summary>
@@ -206,7 +233,7 @@ public sealed class Game : MonoBehaviour
         // }
 
         // main UI
-        // uiMgr.mainMenu.SetActive(true);
+        uiMgr.mainMenu.SetActive(true);
     }
 
     /// <summary>
@@ -259,8 +286,7 @@ public sealed class Game : MonoBehaviour
                 board.getBoardState() == Board.BoardState.PLAYER2_WON || 
                 board.getBoardState() == Board.BoardState.DRAW)
             {
-                stateMgr.gameOver();
-                uiMgr.gameOverMenu.SetActive(true);
+                onGameOver();
             }
             else // the game is not over
             {

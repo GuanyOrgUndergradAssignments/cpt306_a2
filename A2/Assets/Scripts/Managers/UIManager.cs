@@ -106,6 +106,34 @@ public class UIManager : MonoBehaviour
     {
         Game.gameSingleton.goHome();
     }
+    /// <summary>
+    /// Bring up the game over menu
+    /// and set up the corresponding text
+    /// </summary>
+    /// <param name="whoWon"></param>
+    public void onGameOver(Board.BoardState whoWon)
+    {
+        var texts = gameOverMenu.GetComponentsInChildren<TMP_Text>();
+        Utility.MyDebugAssert(texts.Length == 2, "Should have two texts, one the title, another the button text.");
+        var titleText = texts[0];
+
+        if (whoWon == Board.BoardState.PLAYER1_WON)
+        {
+            titleText.text = "You have won.";
+        }
+        else if (whoWon == Board.BoardState.PLAYER2_WON)
+        {
+            titleText.text = "You have lost.";
+        }
+        else if (whoWon == Board.BoardState.DRAW)
+        {
+            titleText.text = "Game draw (neither has won).";
+        }
+        else // impossible
+        {
+            Utility.MyDebugAssert(false, "game over called when playing.");
+        }
+    }
 
     /// <summary>
     /// Helper called inside Awake()
@@ -375,7 +403,7 @@ public class UIManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Update the in game HUB per frame
+    /// Update the in game HUD per frame
     /// </summary>
     private void Update()
     {
@@ -391,7 +419,7 @@ public class UIManager : MonoBehaviour
             if (inGameMenu.activeSelf)
             {
                 var texts = inGameMenu.GetComponentsInChildren<TMP_Text>();
-                Utility.MyDebugAssert(texts.Length == 5);
+                Utility.MyDebugAssert(texts.Length == 3);
 
                 // 0. time text
                 texts[0].text = timeStrProp;

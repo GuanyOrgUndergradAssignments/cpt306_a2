@@ -15,25 +15,33 @@ public abstract class ConcreteChessPlayer : MonoBehaviour, IChessPlayer
 {
     /********************************** FIELDS ************************************/
     // which side the player is on
-    private readonly Board.BoardPositionState side;
+    private Board.BoardPositionState side;
+    private bool sideSet = false;
 
     private bool hasMovedAtAll = false;
     // derived classes should fill in this field during making a move.
     protected ChessMove move;
 
-    /********************************** CTOR ************************************/
+    /********************************** MUTATORS ************************************/
 
-    /// <param name="side">PLAYER1 or PLAYER2</param>
-    /// <exception cref="System.ArgumentException">if side is not PLAYER1 or PLAYER2</exception>
-    public ConcreteChessPlayer(Board.BoardPositionState side)
+    /// <summary>
+    /// Since a mono script cannot have a working constructor,
+    /// use this method to init its side.
+    /// </summary>
+    /// <param name="side"></param>
+    /// <exception cref="System.ArgumentException"></exception>
+    public void setSide(Board.BoardPositionState side)
     {
+        Utility.MyDebugAssert(sideSet == false, "can only set side once");
+        sideSet = true;
+
         if (side != Board.BoardPositionState.PLAYER1 && side != Board.BoardPositionState.PLAYER2)
         {
             throw new System.ArgumentException("side value is not correct.");
         }
 
         this.side = side;
-        }
+    }
 
     /********************************** OBSERVERS ************************************/
 

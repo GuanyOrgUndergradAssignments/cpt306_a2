@@ -10,12 +10,6 @@ public class HumanChessPlayer : ConcreteChessPlayer
     private bool isMoving = false;
     private Coroutine moveCoro = null;
 
-    /********************************** CTOR ************************************/
-
-    public HumanChessPlayer(Board.BoardPositionState side) : base(side)
-    {
-    }
-
     /********************************** FROM ConcreteChessPlayer ************************************/
 
     public override bool hasFinishedMakingMove()

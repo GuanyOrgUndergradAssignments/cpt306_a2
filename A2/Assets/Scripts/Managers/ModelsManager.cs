@@ -94,6 +94,21 @@ public class ModelsManager: MonoBehaviour
     public void onGameStart(Vector2Int player1Pawn, Vector2Int player2Pawn)
     {
         playGameStartEffects(player1Pawn, player2Pawn);
+
+        // Instantiate the board
+        board = Instantiate(boardPrefab, Vector3.zero, Quaternion.identity);
+
+        // Calculate world ositions for pawns
+        Vector3 pawn1Position = BoardPositionToWorld(player1Pawn);
+        Vector3 pawn2Position = BoardPositionToWorld(player2Pawn);
+
+        // Instantiate the initial pawns
+        GameObject pawn1 = Instantiate(pawn1Prefab, pawn1Position, Quaternion.identity);
+        GameObject pawn2 = Instantiate(pawn2Prefab, pawn2Position, Quaternion.identity);
+
+        // Add pawns to the list
+        pawns.Add(pawn1);
+        pawns.Add(pawn2);
     }
 
     /// <summary>
@@ -119,8 +134,8 @@ public class ModelsManager: MonoBehaviour
         foreach (GameObject pawn in pawns)
         {
             Destroy(pawn);
-            pawns.Remove(pawn);
         }
+        pawns.Clear();
     }
 
     /*********************************** PRIVATE HELPERS ***********************************/
@@ -129,20 +144,7 @@ public class ModelsManager: MonoBehaviour
     /// </summary>
     private void playGameStartEffects(Vector2Int player1Pawn, Vector2Int player2Pawn)
     {
-        // Instantiate the board
-        board = Instantiate(boardPrefab, Vector3.zero, Quaternion.identity);
 
-        // Calculate world ositions for pawns
-        Vector3 pawn1Position = BoardPositionToWorld(player1Pawn);
-        Vector3 pawn2Position = BoardPositionToWorld(player2Pawn);
-
-        // Instantiate pawns
-        GameObject pawn1 = Instantiate(pawn1Prefab, pawn1Position, Quaternion.identity);
-        GameObject pawn2 = Instantiate(pawn2Prefab, pawn2Position, Quaternion.identity);
-
-        // Add pawns to the list
-        pawns.Add(pawn1);
-        pawns.Add(pawn2);
     }
 
     /// <summary>

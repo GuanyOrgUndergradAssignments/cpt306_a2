@@ -14,15 +14,11 @@ public class AIChessPlayer : ConcreteChessPlayer
     private IntPtr aiThreadHandle = default(IntPtr);
     private Board chessBoardRef;
     
-    
-    // determine the AI difficulty, namely the step depth AI will contemplate
-    private int AIDifficulty;
-    
     // the final chess move ai will take
     private ChessMove lastFoundMove;
 
-    // TODO: decided by Kemu Xu
-    private readonly uint difficulty;
+    private AIDifficultyState difficulty;
+    private bool difficultySet = false;
     private readonly ChessMove passMove;
 
     private enum AIDifficultyState
@@ -32,9 +28,18 @@ public class AIChessPlayer : ConcreteChessPlayer
         HARD = 3
     }
 
-    /********************************** CTOR ************************************/
-    public AIChessPlayer(Board.BoardPositionState side, uint difficulty) : base(side)
+    /********************************** MUTATORS ************************************/
+
+    /// <summary>
+    /// Since a mono script cannot have a working constructor,
+    /// use this method to init its difficulty.
+    /// </summary>
+    /// <param name="difficulty"></param>
+    private void setDifficulty(AIDifficultyState difficulty)
     {
+        Utility.MyDebugAssert(difficultySet == false, "can only set difficulty once");
+        difficultySet = true;
+
         this.difficulty = difficulty;
     }
 
@@ -89,10 +94,7 @@ public class AIChessPlayer : ConcreteChessPlayer
     /// <returns>the move made</returns>
     private ChessMove aiTask()
     {
-        AIDifficulty = (int)(AIDifficultyState)difficulty;
-        ChessMove aiMove = findMove();
-        
-        throw new System.NotImplementedException();
+        return findMove();
     }
 
     /// <summary>
@@ -107,7 +109,7 @@ public class AIChessPlayer : ConcreteChessPlayer
         lastFoundMove = new ChessMove(getSide(), getMove().getDst(), getMove().getDst());
         
         // Minimax Search
-        miniMax(contemplateBoard, AIDifficulty, true, 1, int.MinValue, int.MaxValue);
+        miniMax(contemplateBoard, (int)difficulty, true, 1, int.MinValue, int.MaxValue);
 
         return lastFoundMove;
     }
@@ -142,7 +144,7 @@ public class AIChessPlayer : ConcreteChessPlayer
         {
             passLegal = board.checkMove(passMove);
         }
-        catch (Exception e)
+        catch (Exception)
         {
             passLegal = false;
         }

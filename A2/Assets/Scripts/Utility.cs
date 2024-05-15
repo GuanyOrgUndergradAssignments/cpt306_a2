@@ -41,8 +41,10 @@ public static class Utility
     {
         if (!condition)
         {
+#if UNITY_EDITOR
             Debugger.Break();
             Debugger.Log(0, "Assertion", "Debug Assertion Failed!\n" + msg);
+#endif
             MessageBox
             (
                 IntPtr.Zero, // no parent window
@@ -50,7 +52,10 @@ public static class Utility
                 "Debug Assertion Failed!", 
                 0x00000000 | 0x00000010 // MB_OK | MB_ICONERROR
             );
+// In editor I can debug, so I don't have to do this.
+#if !UNITY_EDITOR
             ExitProcess(1);
+#endif
         }
     }
 }
