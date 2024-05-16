@@ -19,8 +19,8 @@ public class ModelsManager: MonoBehaviour
     // for player 2
     public GameObject pawn2Prefab;
     // visual effects
-    public GameObject blueEffect;
-    public GameObject redEffect;
+    public GameObject blueEffectPrefab;
+    public GameObject redEffectPrefab;
     // audio effects
     public AudioClip jump, clone, colorChange;
     private AudioSource audioSource;
@@ -41,8 +41,8 @@ public class ModelsManager: MonoBehaviour
         Utility.MyDebugAssert(boardPrefab != null, "check prefabs in editor.");
         Utility.MyDebugAssert(pawn1Prefab != null, "check prefabs in editor.");
 
-        Utility.MyDebugAssert(blueEffect != null, "check prefabs in editor.");
-        Utility.MyDebugAssert(redEffect != null, "check prefabs in editor.");
+        Utility.MyDebugAssert(blueEffectPrefab != null, "check prefabs in editor.");
+        Utility.MyDebugAssert(redEffectPrefab != null, "check prefabs in editor.");
     }
 
     /// <summary>
@@ -70,7 +70,7 @@ public class ModelsManager: MonoBehaviour
     /// </returns>
     public Vector3 getBoardSurfaceCenter()
     {
-        return board.transform.position;
+        return new Vector3 (0, 0.11f, 0);
     }
 
     /// <returns>
@@ -93,14 +93,14 @@ public class ModelsManager: MonoBehaviour
     /// <param name="player2Pawn"></param>
     public void onGameStart(Vector2Int player1Pawn, Vector2Int player2Pawn)
     {
-        playGameStartEffects(player1Pawn, player2Pawn);
-
         // Instantiate the board
         board = Instantiate(boardPrefab, Vector3.zero, Quaternion.identity);
 
         // Calculate world ositions for pawns
         Vector3 pawn1Position = BoardPositionToWorld(player1Pawn);
         Vector3 pawn2Position = BoardPositionToWorld(player2Pawn);
+
+        playGameStartEffects(pawn1Position, pawn2Position);
 
         // Instantiate the initial pawns
         GameObject pawn1 = Instantiate(pawn1Prefab, pawn1Position, Quaternion.identity);
@@ -123,7 +123,58 @@ public class ModelsManager: MonoBehaviour
     /// <param name="whoseMove">who made the move</param>
     public void onMoveMade(ChessMove move, List<Vector2Int> replacedPawns, Board.BoardPositionState whoseMove)
     {
-        playMoveEffects(move, replacedPawns, whoseMove);
+        Vector3 srcPosition = BoardPositionToWorld(move.getSrc());
+        Vector3 dstPosition = BoardPositionToWorld(move.getDst());
+
+        // check move type
+        if (Board.isJump(move))
+        {
+            foreach (GameObject pawn in pawns)
+            {
+                if (pawn.transform.position == srcPosition)
+                {
+                    StartCoroutine(JumpEffect(pawn, srcPosition, dstPosition, () =>
+                    {
+                        // Move completed, handle replaced pawns
+                        foreach (Vector2Int replacedPawnPos in replacedPawns)
+                        {
+                            // Destroy killed pawns
+                            Vector3 pawnPosition = BoardPositionToWorld(replacedPawnPos);
+                            DestroyPawnAtPosition(pawnPosition);
+
+                            // Play move effect
+                            playMoveEffects(replacedPawns, whoseMove);
+
+                            // Spawn new pawns
+                            GameObject newPawn = InstantiatePawnAtPosition(pawnPosition, whoseMove);
+                            pawns.Add(newPawn);
+                        }
+                    }));
+                }
+            }
+        }
+        if (Board.isClone(move))
+        {
+            GameObject clonedPawn = InstantiatePawnAtPosition(srcPosition, whoseMove);
+            pawns.Add(clonedPawn);
+            StartCoroutine(CloneEffect(clonedPawn, srcPosition, dstPosition, () =>
+            {
+                // Move completed, handle replaced pawns
+                foreach (Vector2Int replacedPawnPos in replacedPawns)
+                {
+                    // Destroy killed pawns
+                    Vector3 pawnPosition = BoardPositionToWorld(replacedPawnPos);
+                    DestroyPawnAtPosition(pawnPosition);
+
+                    // Play move effect
+                    playMoveEffects(replacedPawns, whoseMove);
+
+                    // Spawn new pawns
+                    GameObject newPawn = InstantiatePawnAtPosition(pawnPosition, whoseMove);
+                    pawns.Add(newPawn);
+                }
+            }));
+        }
     }
 
     /// <summary>
@@ -142,59 +193,28 @@ public class ModelsManager: MonoBehaviour
     /// <summary>
     /// Play the visual and audio effects on game start.
     /// </summary>
-    private void playGameStartEffects(Vector2Int player1Pawn, Vector2Int player2Pawn)
+    private void playGameStartEffects(Vector3 player1Pawn, Vector3 player2Pawn)
     {
+        GameObject blueEffect = Instantiate(blueEffectPrefab, player1Pawn, Quaternion.identity);
+        GameObject redEffect = Instantiate(redEffectPrefab, player2Pawn, Quaternion.identity);
 
+        Destroy(blueEffect, 1.0f);
+        Destroy(redEffect, 1.0f);
     }
 
     /// <summary>
     /// Play the visual and audio effects on move made
     /// Can only be called by onMoveMade()
     /// </summary>
-    /// <param name="move">the move, passed in by onMoveMade()</param>
     /// <param name="replacedPawns">returned by Board.makeMove(), passed in by onMoveMade()</param>
-    /// <param name="whoseMove">who made the move, passed in by onMoveMade()</param>
-    private void playMoveEffects(ChessMove move, List<Vector2Int> replacedPawns, Board.BoardPositionState whoseMove)
-    {
-        Vector3 srcPosition = BoardPositionToWorld(move.getSrc());
-        Vector3 dstPosition = BoardPositionToWorld(move.getDst());
-
-        // check move type
-        if (Board.isJump(move))
-        {
-            foreach (GameObject pawn in pawns)
-            {
-                if (pawn.transform.position == srcPosition)
-                {
-                    StartCoroutine(JumpEffect(pawn, srcPosition, dstPosition, () =>
-                    {
-                        // Move completed, handle replaced pawns
-                        HandleReplacedPawns(replacedPawns, whoseMove);
-                    }));
-                }
-            }            
-        }
-        if (Board.isClone(move))
-        {
-            GameObject clonedPawn = InstantiatePawnAtPosition(srcPosition, whoseMove);
-            pawns.Add(clonedPawn);
-            StartCoroutine(CloneEffect(clonedPawn, srcPosition, dstPosition, () =>
-            {
-                // Move completed, handle replaced pawns
-                HandleReplacedPawns(replacedPawns, whoseMove);
-            }));       
-        }
-    }
-
-    private void HandleReplacedPawns(List<Vector2Int> replacedPawns, Board.BoardPositionState whosemove)
+    /// <param name="whoseMove">who made the move, passed in by onMoveMade()</param>    
+    private void playMoveEffects(List<Vector2Int> replacedPawns, Board.BoardPositionState whosemove)
     {
         List<GameObject> effects = new List<GameObject>();
 
-        // Destroy killed pawns
         foreach (Vector2Int replacedPawnPos in replacedPawns)
         {
             Vector3 pawnPosition = BoardPositionToWorld(replacedPawnPos);
-
             // Instantiate effect at pawn position
             GameObject effect = InstantiateEffectAtPosition(pawnPosition, whosemove);
 
@@ -203,18 +223,8 @@ public class ModelsManager: MonoBehaviour
             audioSource.Play();
 
             effects.Add(effect);
-            DestroyPawnAtPosition(pawnPosition);
             Destroy(effect, 1.0f);
         }
-
-        // Spawn new pawns
-        foreach (Vector2Int replacedPawnPos in replacedPawns)
-        {
-            Vector3 pawnPosition = BoardPositionToWorld(replacedPawnPos);
-            GameObject newPawn = InstantiatePawnAtPosition(pawnPosition, whosemove);
-            pawns.Add(newPawn);
-        }
-
     }
 
     private Vector3 BoardPositionToWorld(Vector2Int boardPosition)
@@ -239,7 +249,7 @@ public class ModelsManager: MonoBehaviour
     // Helper method to instantiate an effect at a given position based on the current player
     private GameObject InstantiateEffectAtPosition(Vector3 position, Board.BoardPositionState player)
     {
-        GameObject effectPrefab = (player == Board.BoardPositionState.PLAYER1) ? blueEffect : redEffect;
+        GameObject effectPrefab = (player == Board.BoardPositionState.PLAYER1) ? blueEffectPrefab : redEffectPrefab;
         return Instantiate(effectPrefab, position, Quaternion.identity);
     }
 
