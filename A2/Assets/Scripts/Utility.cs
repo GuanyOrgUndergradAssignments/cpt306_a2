@@ -2,7 +2,6 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 using System;
-using static UnityEngine.Rendering.VirtualTexturing.Debugging;
 
 /// <summary>
 /// Contains all utility functions globally available.
