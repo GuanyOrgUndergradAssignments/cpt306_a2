@@ -27,6 +27,16 @@ public class UIManager : MonoBehaviour
     // other elements that need to be stored (callbacks don't have parameters)
     private Slider[] optionsMenuSliders;
 
+    // controls how far the UIs are placed before the camera.
+    public float uiCameraDistance = 20.0f;
+    // controls the size of the UIs in the world space.
+    public float uiWorldSpaceScale = 1.0f;
+    // controls the orientation of the UIs in the world space.
+    // A UI is either facing the camera or facing the other side.
+    public bool uiWorldSpaceSide = true;
+    // how much the UIs are rotated around their centers.
+    public float uiWorldSpaceRotation = 0.0f;
+
     /*********************************** PUBLIC METHODS ***********************************/
 
     /// <summary>
@@ -39,6 +49,7 @@ public class UIManager : MonoBehaviour
         gameOverMenu.SetActive(false);
         scoresMenu.SetActive(false);
         optionsMenu.SetActive(false);
+        difficultyMenu.SetActive(false);
         // inGameMenu.SetActive(false);
     }
 
@@ -106,6 +117,7 @@ public class UIManager : MonoBehaviour
     {
         Game.gameSingleton.goHome();
     }
+
     /// <summary>
     /// Bring up the game over menu
     /// and set up the corresponding text
@@ -134,6 +146,81 @@ public class UIManager : MonoBehaviour
             Utility.MyDebugAssert(false, "game over called when playing.");
         }
     }
+
+    /// <summary>
+    /// In Unity VR, screen space UIs are not rendered.
+    /// Instead, we must put UIs in world space as 3D objects.
+    /// 
+    /// To achieve the previous screen space effects, 
+    /// we must make UIs move with the camera, and the best way to do that is to attach the UIs to the camera.
+    /// </summary>
+    private void attachMenusToCamera()
+    {
+        attachMenuToCamera(mainMenu);
+        attachMenuToCamera(pauseMenu);
+        attachMenuToCamera(gameOverMenu);
+        attachMenuToCamera(inGameMenu);
+        attachMenuToCamera(scoresMenu);
+        attachMenuToCamera(optionsMenu);
+        attachMenuToCamera(difficultyMenu);
+}
+
+    /// <summary>
+    /// Helper for the previous method
+    /// </summary>
+    /// <param name="menu"></param>
+    private void attachMenuToCamera(GameObject menu)
+    {
+        Camera cam = Game.gameSingleton.camMgr.getMainCamera();
+
+        // attach to the camera.
+        menu.GetComponent<Canvas>().worldCamera = cam;
+        menu.transform.SetParent(cam.transform);
+
+        RectTransform rectTransform = menu.GetComponent<RectTransform>();
+        Utility.MyDebugAssert(rectTransform != null, "Code is incorrect. Fix it.");
+
+        // location and rotation
+        {
+            // Each corner provides its world space value. The returned array of 4 vertices is clockwise.
+            // It starts bottom left and rotates to top left, then top right, and finally bottom right.
+            // Note that bottom left, for example, is an (x, y, z) vector with x being left and y being bottom.
+            Vector3[] uiWorldCorners = new Vector3[4];
+            rectTransform.GetWorldCorners(uiWorldCorners);
+
+            Vector3 bottomLeft = uiWorldCorners[0];
+            Vector3 topRight = uiWorldCorners[2];
+            float realUiWidth = Mathf.Abs(topRight.x - bottomLeft.x);
+            float realUiHeight = Mathf.Abs(topRight.y - bottomLeft.y);
+
+            // Unity applies rotation before translation.
+            menu.transform.SetLocalPositionAndRotation
+            (
+                // match the ui center with the lookat vector.
+                //new Vector3(.5f * realUiWidth, .5f * realUiHeight, uiCameraDistance),
+                new Vector3(0.0f, 0.0f, uiCameraDistance),
+
+                // By default Unity rotates around z first.
+                // But we want to rotate around y first in this case.
+                //
+                // Let p = (x,y,z) be a point in 3D space (extended as a quaternion [0, x, y, z])
+                // and let a be any valid rotation quaternion.
+                // rotate p by using a is done by p' = a p a^{-1}.
+                // Then, rotate it by b to get p'' = ba p a^{-1}b^{-1},
+                // which means rotating by a and then by b
+                // is equivalent to rotating by b*a
+                Quaternion.Euler(0.0f, 0.0f, uiWorldSpaceRotation) * Quaternion.Euler(0.0f, uiWorldSpaceSide ? 0.0f : 180.0f, 0.0f)
+            );
+        }
+
+        // size
+        {
+            // Need to scale through one of the two
+            menu.transform.localScale = new Vector3(uiWorldSpaceScale, uiWorldSpaceScale, uiWorldSpaceScale);
+            //rectTransform.localScale.Set(uiWorldSpaceScale, uiWorldSpaceScale, uiWorldSpaceScale);
+        }   
+    }
+
 
     /// <summary>
     /// Helper called inside Awake()
@@ -386,6 +473,7 @@ public class UIManager : MonoBehaviour
         this.gameOverMenu = GameObject.Instantiate(gameOverMenu);
         this.scoresMenu = GameObject.Instantiate(scoresMenu);
         this.optionsMenu = GameObject.Instantiate(optionsMenu);
+        this.difficultyMenu = GameObject.Instantiate(difficultyMenu);
 
         Utility.MyDebugAssert(inGameMenu != null);
         Utility.MyDebugAssert(mainMenu != null);
@@ -393,6 +481,13 @@ public class UIManager : MonoBehaviour
         Utility.MyDebugAssert(gameOverMenu != null);
         Utility.MyDebugAssert(scoresMenu != null);
         Utility.MyDebugAssert(optionsMenu != null);
+        Utility.MyDebugAssert(difficultyMenu != null);
+    }
+
+    private void Start()
+    {
+        // Attach them all to the camera
+        attachMenusToCamera();
 
         // Bind menu elements callbacks
         bindMenuCallbacks();
@@ -400,6 +495,8 @@ public class UIManager : MonoBehaviour
         // hide all, and the in game menu
         // when I want to show one, call the corresponding method.
         hideAllUI();
+        // main UI
+        mainMenu.SetActive(true);
     }
 
     /// <summary>

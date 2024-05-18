@@ -231,9 +231,6 @@ public sealed class Game : MonoBehaviour
         //     bgMusic.volume = AudioManager.musicStrength();
         //     bgMusic.Play();
         // }
-
-        // main UI
-        uiMgr.mainMenu.SetActive(true);
     }
 
     /// <summary>

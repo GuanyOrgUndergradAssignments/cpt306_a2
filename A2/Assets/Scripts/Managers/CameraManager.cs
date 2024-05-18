@@ -60,6 +60,8 @@ public class CameraManager : MonoBehaviour
 
     /*********************************** METHODS ***********************************/  
 
+    public Camera getMainCamera() { return cam; }
+
     /// <returns>true: normal, perspective; false: tactical, orthogonal</returns>
     public bool getMode()
     {
@@ -154,10 +156,10 @@ public class CameraManager : MonoBehaviour
     /// Obtain the camera,
     /// and set up it with the boardd
     /// </summary>
-    void Start()
+    void Awake()
     {
         // This is the XR Rig -> Camera Offset -> Main Camera
-        cam = Camera.main;
+        cam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         Utility.MyDebugAssert(cam != null, "should not be null");
 
         // the initial focal point is the center of the board.

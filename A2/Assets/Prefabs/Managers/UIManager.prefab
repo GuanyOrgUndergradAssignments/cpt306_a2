@@ -57,3 +57,7 @@ MonoBehaviour:
     type: 3}
   difficultyMenu: {fileID: 7781467586194739268, guid: 747bc325f2b1cdc4d97b4bd08e811e88,
     type: 3}
+  uiCameraDistance: 20
+  uiWorldSpaceScale: 0.01
+  uiWorldSpaceSide: 1
+  uiWorldSpaceRotation: 0
